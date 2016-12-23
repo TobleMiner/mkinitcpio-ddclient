@@ -1,0 +1,44 @@
+build ()
+{
+	if [ ! -f /etc/ddclient/interfaces.conf ]; then
+		>&2 echo "ddclient interface config file not found"
+		exit 1
+	fi
+
+	if [ ! -f /etc/ddclient/ddclient-initcpio.conf ]; then
+		>&2 echo "ddclient initcpio config file not found"
+		exit 1
+	fi
+	
+	add_binary ip
+	add_binary echo
+	add_binary ddclient
+	add_binary touch
+	add_binary chmod
+	add_binary sed
+	add_binary ddclient
+	add_binary kill
+	add_binary rm
+
+	add_binary perl
+	add_full_dir /usr/lib/perl5
+	add_full_dir /usr/share/perl5
+	add_file /usr/lib/libnss_dns.so
+	add_binary /usr/bin/openssl
+
+	add_full_dir /etc/ddclient
+	add_full_dir /etc/ssl
+	add_full_dir /etc/ca-certificates
+
+	add_dir /var/run
+	add_dir /var/cache/ddclient
+	
+	add_runscript
+}
+
+help ()
+{
+cat<<HELPEOF
+	Enables ddclient in initcpio
+HELPEOF
+}

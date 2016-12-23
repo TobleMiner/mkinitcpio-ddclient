@@ -1,0 +1,29 @@
+run_hook ()
+{
+        while read -r if; do
+                if [ -z "`ip -4 a s scope global dev $if`" ]; then
+                        echo "Nothing on $if: `ip -4 a s scope global dev $if`"
+                        unset if
+                else
+                        echo "Address on $if: `ip -4 a s scope global dev $if | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}'`"
+                        break;
+                fi
+        done < /etc/ddclient/interfaces.conf
+
+        if [ -z "$if" ]; then
+                >&2 echo "No configured interface found :("
+                exit 1
+        fi
+
+        cfgfile='/tmp/ddclient.cfg'
+        touch "$cfgfile"
+        chmod 600 "$cfgfile"
+        sed "s/__IF_/$if/g" /etc/ddclient/ddclient-initcpio.conf > "$cfgfile"
+        ddclient -foreground -file "$cfgfile" -pid /var/run/ddclient.pid &
+}
+
+run_cleanuphook ()
+{
+        kill -9 `cat /var/run/ddclient.pid`
+        rm -f /var/run/ddclient.pid
+}
